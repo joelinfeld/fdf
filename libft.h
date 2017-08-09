@@ -6,7 +6,7 @@
 /*   By: jinfeld <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/06 18:23:21 by jinfeld           #+#    #+#             */
-/*   Updated: 2017/06/20 15:03:37 by jinfeld          ###   ########.fr       */
+/*   Updated: 2017/08/08 16:54:20 by jinfeld          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,4 +86,6 @@ t_list				*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem));
 void				ft_striteri(char *s, void (*f)(unsigned int, char *));
 int					ft_isprint(int c);
 char				*ft_itoa_base(uintmax_t n, int base, int caseflag);
+char				**ft_strsplit(const char *str, char c);
+
 #endif
