@@ -6,14 +6,14 @@
 /*   By: jinfeld <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/07 14:42:00 by jinfeld           #+#    #+#             */
-/*   Updated: 2017/05/16 16:29:13 by jinfeld          ###   ########.fr       */
+/*   Updated: 2017/04/13 17:02:11 by jinfeld          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 # define BUFF_SIZE 2
-# include "libft.h"
+# include "libft/libft.h"
 # include <fcntl.h>
 
 struct				s_bufd
