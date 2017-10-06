@@ -6,7 +6,7 @@
 /*   By: jinfeld <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/25 14:23:35 by jinfeld           #+#    #+#             */
-/*   Updated: 2017/10/05 17:26:26 by jinfeld          ###   ########.fr       */
+/*   Updated: 2017/10/05 18:21:40 by jinfeld          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -301,16 +301,22 @@ void	defaultmap(t_map *map)
 	map->rot[1] =  0;
 	map->rot[2] = 0;
 	map->clr0.r = 0;
-	map->clr0.g = 255;
-	map->clr0.b = 100;
+	map->clr0.g = 0;
+	map->clr0.b = 255;
 	map->clr1.r = 255;
-	map->clr1.g = 100;
+	map->clr1.g = 0;
 	map->clr1.b = 0;
 }
 
 int		keyz(int key, t_map *map)
 {
-
+	if (key == 257)
+	{
+		if (map->last == 6)
+			map->rot[2] -= .1;
+	}
+	else
+		map->last = key;
 	if (key == 123)
 		map->trans[0] -= 10;
 	if (key == 124)
@@ -319,7 +325,7 @@ int		keyz(int key, t_map *map)
 		map->trans[1] += 10;
 	if (key == 126)
 		map->trans[1] -= 10;
-	if (key == 6 && key == 257)
+	if (key == 6)
 		map->rot[2] += .1;
 	if (key == 7)
 		map->rot[0] += .05;
@@ -329,6 +335,8 @@ int		keyz(int key, t_map *map)
 		map->scale += 15;
 	if (key == 19)
 		map->scale -= 15;
+	if (key == 53)
+		exit(EXIT_SUCCESS);
 	ft_printf("%d\n", key);
 	return (1);
 }
@@ -340,12 +348,11 @@ int		main(int argc, char **argv)
 	t_map	map;
 	if (argc != 2)
 		return (0);
-	//error
 	defaultmap(&map);
 	dims(argv[1], &(map.width), &(map.height));
 	getmatrix(argv[1], &map);
 	map.mlx = mlx_init();
-	map.win = mlx_new_window(map.mlx, 2000, 2000, "mlx 42");
+	map.win = mlx_new_window(map.mlx, 3000, 3000, "mlx 42");
 	mlx_do_key_autorepeaton(map.mlx);
 	mlx_key_hook(map.win, &keyz, &map);
 	mlx_loop_hook(map.mlx, &drawgrid, &map);
