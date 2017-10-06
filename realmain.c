@@ -6,15 +6,13 @@
 /*   By: jinfeld <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/25 14:23:35 by jinfeld           #+#    #+#             */
-/*   Updated: 2017/10/03 21:43:04 by jinfeld          ###   ########.fr       */
+/*   Updated: 2017/10/05 17:26:26 by jinfeld          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mlx.h"
 #include "libft/libft.h"
 #include <stdio.h>
-#include <fcntl.h>
-#include <math.h>
 #include "fdf.h"
 
 int		findwidth(char **split)
@@ -41,9 +39,11 @@ void		dims(char *filename, int *width, int *height)
 		(*height)++;
 		if (first)
 		{
-			*width = findwidth(ft_strsplit(stuff, ' '));
+			*width = findwidth(ft_strsplit(stuff, ' ' ));
 			first = 0;
 		}
+		if (*width != findwidth(ft_strsplit(stuff, ' ')))
+			//errror
 		ft_strdel(&stuff);
 	}
 	close(fd);
@@ -59,9 +59,16 @@ void		getmatrix(char *str, t_map *map)
 
 	fd = open(str, O_RDONLY);
 	map->matrix = (int**)malloc(sizeof(int*) * map->height);
+	if (!map->matrix)
+		return ;
+		//error
 	i = -1;
 	while (++i < map->height)
+	{
 		map->matrix[i] = (int*)ft_memalloc(sizeof(int) * map->width);
+		if(!map->matrix[i])
+			return ;
+	}
 	i = 0;
 	while (gnl(fd, &stuff))
 	{
@@ -97,13 +104,21 @@ int		stepcount(t_p p1, t_p p2, int dx, int dy)
 	sx = x0<(int)p2.x ? 1 : -1;
 	sy = y0<(int)p2.y ? 1 : -1;
 	err = (dx>dy ? dx : -dy)/2;
-	for(;;)
+	while(1)
 	{
 		stepct++;
 		if (x0 == (int)p2.x && y0 == (int)p2.y) break;
 		e2 = err;
-		if (e2 > -dx) { err -= dy; x0 += sx;}
-		if (e2 < dy) {err += dx; y0 += sy;}
+		if (e2 > -dx) 
+		{
+			err -= dy; 
+			x0 += sx;
+		}
+		if (e2 < dy) 
+		{
+			err += dx; 
+			y0 += sy;
+		}
 	}
 	return (stepct);
 }
@@ -146,7 +161,8 @@ t_clr	colorbound(t_p p, t_map *map)
 
 	zmag = p.z - (map->minz * map->scale);
 	zdiff = (map->maxz - map->minz) * map->scale;
-	printf("zmag: %f zdiff: %f", zmag, zdiff);
+	if (zdiff == 0)
+		return(map->clr0);
 	ret.r = map->clr0.r + (map->clr1.r - map->clr0.r) * (zmag / zdiff);
 	ret.g = map->clr0.g + (map->clr1.g - map->clr0.g) * (zmag / zdiff);
 	ret.b = map->clr0.b + (map->clr1.b - map->clr0.b) * (zmag / zdiff);
@@ -165,25 +181,31 @@ void	drawline(t_p p1, t_p p2, t_map *map)
 	int	i;
 	int r, g, b;
 	int stepct;
+	
 	t_clr	bound0;
 	t_clr	bound1;
-	
 	ft_bzero(&bound0, sizeof(t_clr));
 	ft_bzero(&bound1, sizeof(t_clr));
-
 	bound0 = colorbound(p1, map);
-	printf("r: %d g: %d b: %d\n", bound0.r, bound0.g, bound0.b);
 	bound1 = colorbound(p2, map);
-	printf("r: %d g: %d b: %d\n", bound1.r, bound1.g, bound1.b);
 	stepct = stepcount(p1, p2, dx, dy);
 	i = -1;
-	for(;;){
+	while (1)
+	{
 		++i;
 		mlx_pixel_put(map->mlx, map->win, map->trans[0] + x0, map->trans[1] + y0, colorgrade(p1, p2, bound0, bound1, stepct, i, map));
 		if (x0==x1 && y0==y1) break;
 		e2 = err;
-		if (e2 >-dx) { err -= dy; x0 += sx; }
-	 	if (e2 < dy) { err += dx; y0 += sy; }
+		if (e2 >-dx)
+		{
+			err -= dy; 
+			x0 += sx;
+		}
+	 	if (e2 < dy) 
+		{
+			err += dx; 
+			y0 += sy;
+		}
 	}
 }
 
@@ -235,8 +257,9 @@ t_p		setpoint(int y, int x, int z, int scale)
 	return (p);
 }
 
-void	drawgrid(t_map *map)
+int		drawgrid(t_map *map)
 {
+	mlx_clear_window(map->mlx, map->win);
 	int	i;
 	int	j;
 	t_p p[3];
@@ -248,21 +271,22 @@ void	drawgrid(t_map *map)
 		while (++j < map->width)
 		{
 			p[0] = setpoint(i, j, map->matrix[i][j], map->scale);
-		//	rotate(&p[0], map);
+			rotate(&p[0], map);
 			if (j + 1 < map->width)
 			{
 				p[1] = setpoint(i, j + 1, map->matrix[i][j + 1], map->scale);
-		//		rotate(&p[1], map);
+				rotate(&p[1], map);
 				drawline(p[0], p[1], map);
 			}
 			if (i + 1 < map->height)
 			{
 				p[2] = setpoint(i + 1, j, map->matrix[i + 1][j], map->scale);
-		//		rotate(&p[2], map);
+				rotate(&p[2], map);
 				drawline(p[0], p[2], map);
 			}
 		}
 	}
+	return (0);
 }
 void	defaultmap(t_map *map)
 {
@@ -270,18 +294,43 @@ void	defaultmap(t_map *map)
 	map->height = 0;
 	map->maxz = 0;
 	map->minz = 0;
-	map->trans[0] = 0;
-	map->trans[1] = 0;
-	map->scale = 15;
-	map->rot[0] = 0.055;
-	map->rot[1] =  -0.042;
-	map->rot[2] = -0.022;
-	map->clr0.r = 255;
-	map->clr0.g = 0;
-	map->clr0.b = 0;
-	map->clr1.r = 0;
-	map->clr1.g = 0;
-	map->clr1.b = 255;
+	map->trans[0] = 150;
+	map->trans[1] = 150;
+	map->scale = 30;
+	map->rot[0] = 0;
+	map->rot[1] =  0;
+	map->rot[2] = 0;
+	map->clr0.r = 0;
+	map->clr0.g = 255;
+	map->clr0.b = 100;
+	map->clr1.r = 255;
+	map->clr1.g = 100;
+	map->clr1.b = 0;
+}
+
+int		keyz(int key, t_map *map)
+{
+
+	if (key == 123)
+		map->trans[0] -= 10;
+	if (key == 124)
+		map->trans[0] += 10;
+	if (key == 125)
+		map->trans[1] += 10;
+	if (key == 126)
+		map->trans[1] -= 10;
+	if (key == 6 && key == 257)
+		map->rot[2] += .1;
+	if (key == 7)
+		map->rot[0] += .05;
+	if (key == 16)
+		map->rot[1] += .05;
+	if (key == 18)
+		map->scale += 15;
+	if (key == 19)
+		map->scale -= 15;
+	ft_printf("%d\n", key);
+	return (1);
 }
 
 int		main(int argc, char **argv)
@@ -291,12 +340,15 @@ int		main(int argc, char **argv)
 	t_map	map;
 	if (argc != 2)
 		return (0);
+	//error
 	defaultmap(&map);
 	dims(argv[1], &(map.width), &(map.height));
 	getmatrix(argv[1], &map);
 	map.mlx = mlx_init();
 	map.win = mlx_new_window(map.mlx, 2000, 2000, "mlx 42");
-	drawgrid(&map);	
+	mlx_do_key_autorepeaton(map.mlx);
+	mlx_key_hook(map.win, &keyz, &map);
+	mlx_loop_hook(map.mlx, &drawgrid, &map);
 	mlx_loop(map.mlx);
 	return (0);
 }
