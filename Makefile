@@ -1,20 +1,39 @@
-#
-#
+NAME=fdf
 
-NOM=libmlx.a
-SRC= mlx_shaders.c mlx_new_window.m mlx_init_loop.m mlx_new_image.m mlx_xpm.c mlx_int_str_to_wordtab.c
-OBJ1=$(SRC:.c=.o)
-OBJ=$(OBJ1:.m=.o)
-CFLAGS+=-O2
+#compiler flags
+CC=gcc
+CFLAGS=-Wall -Wextra -Werror
 
-all: $(NOM)
+#fdf sources
+SRCS = srcs/realmain.c
+OBJS=$(SRCS:%.c=%.o)
 
-$(NOM):	$(OBJ)
-	ar -r $(NOM) $(OBJ)
-	ranlib $(NOM)
+
+#libft
+LFT_DIR = libft
+LFT_LINK = -L$(LFT_DIR) -lft
+
+#minilibx
+MLX_DIR = minilibx
+MLX_LINK = -L$(MLX_DIR) -lmlx
+INC = -I libft/includes -I minilibx -I includes
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	make -C $(LFT_DIR)
+	make -C $(MLX_DIR)
+	$(CC) $(CFLAGS) $(LFT_LINK) $(MLX_LINK) $(OBJS) -framework OpenGL -framework AppKit -o $(NAME)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $^
 
 clean:
-	rm -f $(NOM) $(OBJ) *~
-	rm -f mlx_app
+	make -C $(LIB_DIR) clean
+	-rm -f $(OBJS)
 
-re: clean all
+fclean: clean
+	make -C $(LIB_DIR) fclean
+	-rm -f $(NAME)
+
+re: fclean all
