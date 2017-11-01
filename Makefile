@@ -29,11 +29,12 @@ $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $^
 
 clean:
-	make -C $(LIB_DIR) clean
+	make -C $(LFT_DIR) clean
+	make -C $(MLX_DIR) clean
 	-rm -f $(OBJS)
 
 fclean: clean
-	make -C $(LIB_DIR) fclean
+	make -C $(LFT_DIR) fclean
 	-rm -f $(NAME)
 
 re: fclean all
