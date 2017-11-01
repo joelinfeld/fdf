@@ -6,7 +6,7 @@
 /*   By: jinfeld <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/25 14:23:35 by jinfeld           #+#    #+#             */
-/*   Updated: 2017/10/31 17:03:19 by jinfeld          ###   ########.fr       */
+/*   Updated: 2017/10/31 19:42:56 by jinfeld          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,8 +201,9 @@ void	drawline(t_p p1, t_p p2, t_map *map)
 	while (1)
 	{
 		++i;
-	*(int *)(map->image.data + map->image.size_line * ((int)p1.y + map->trans[1]) + ((int)p1.x + map->trans[0]) * sizeof(map->image.bpp)) = mlx_get_color_value(map->mlx, colorgrade(node, i));
-	if ((int)p1.x == (int)p2.x && (int)p1.y == (int)p2.y)
+		if ((int)p1.y + map->trans[1] < 3000 && (int)p1.x + map->trans[0] < 3000 && (int)p1.y + map->trans[1] >= 0 && (int)p1.x + map->trans[0] >= 0)
+			*(int *)(map->image.data + map->image.size_line * ((int)p1.y + map->trans[1]) + ((int)p1.x + map->trans[0]) * sizeof(map->image.bpp)) = mlx_get_color_value(map->mlx, colorgrade(node, i));
+		if ((int)p1.x == (int)p2.x && (int)p1.y == (int)p2.y)
 			break ;
 		node.e2 = node.err;
 		if (node.e2 > -node.dx)
@@ -303,6 +304,7 @@ int		drawgrid(t_map *map)
 	
 	i = 0;
 	j = 0;
+	mlx_clear_window(map->mlx, map->win);
 	map->image.ptr = mlx_new_image(map->mlx, 3000, 3000);
 	drawgridhelp(p, map, i, j);
 	mlx_put_image_to_window(map->mlx, map->win, map->image.ptr, 0, 0);
@@ -310,15 +312,18 @@ int		drawgrid(t_map *map)
 	return (0);
 }
 
-void	defaultmap(t_map *map)
+void	defaultmap(t_map *map, char c)
 {
-	map->width = 0;
-	map->height = 0;
-	map->maxz = 0;
-	map->minz = 0;
+	if (c != 'r')
+	{
+		map->width = 0;
+		map->height = 0;
+		map->maxz = 0;
+		map->minz = 0;
+	}
 	map->trans[0] = 0;
 	map->trans[1] = 0;
-	map->scale = 150;
+	map->scale = 20;
 	map->rot[0] = 0;
 	map->rot[1] = 0;
 	map->rot[2] = 0;
@@ -366,53 +371,62 @@ void	keyzoom(int key, t_map *map)
 		map->scale -= 15;
 }
 
-void	keyrothue(int key, t_map *map)
+void	keyreset(int key, t_map *map)
 {
-	if (key == 50)
+	if (key == 15)
 	{
-		if (map->clr0.b != 0 && map->clr0.g != 255)
-		{
-			map->clr0.b -= 51;
-			map->clr0.g += 51;
-			map->clr1.r -= 51;
-			map->clr1.b += 51;
-		}
-		else if (map->clr0.g != 0 && map->clr0.r != 255)
-		{
-			map->clr0.g -= 51;
-			map->clr0.r += 51;
-			map->clr1.b -= 51;
-			map->clr1.g += 51;
-		}
-		else if (map->clr0.r != 0 && map->clr0.b != 255)
-		{
-			map->clr0.r -= 51;
-			map->clr0.b += 51;
-			map->clr1.g -= 51;
-			map->clr1.r += 51;
-		}
+		defaultmap(map, 'r');	
 	}
 }
+
+void	keyrothue(int key, t_map *map)
+{
+
+	if (key == 50)
+	{
+		if (map->clr0.r == 0 && map->clr0.b == 255 && map->clr0.g == 0)
+		{
+			map->clr0.b = 0;
+			map->clr0.r = 255;
+			map->clr1.g = 255;
+			map->clr1.r = 0;
+		}
+		else if (map->clr0.r == 255 && map->clr0.b == 0 && map->clr0.g == 0)
+		{
+			map->clr0.r = 0;
+			map->clr0.g = 255;
+			map->clr1.g = 0;
+			map->clr1.b = 255;
+		}
+		else if (map->clr0.r == 0 && map->clr0.b == 0 && map->clr0.g == 255)
+		{
+			map->clr0.g = 0;
+			map->clr0.b = 255;
+			map->clr1.r = 255;
+			map->clr1.b = 0;
+		}
+
+	}
+}
+
 
 int		keyz(int key, t_map *map)
 {
 	int rev;
 
 	rev = 1;
-	if (key == 257)
-		rev *= -1;
-	else
-		map->last = rev;
 	if (key == 123 || key == 124 || key == 125 || key == 126)
 		keytrans(key, map);
 	if (key == 6 || key == 7 || key == 16 || key == 0 || key == 1 || key == 4)
 		keyrot(key, map);
 	if (key == 24 || key == 27)
 		keyzoom(key, map);
-	if (key == 50 || key == 48)
+	if (key == 50)
 		keyrothue(key, map);
 	if (key == 53)
 		exit(EXIT_SUCCESS);
+	if (key == 15)
+		keyreset(key, map);
 	ft_printf("%d\n", key);
 	return (1);
 }
@@ -423,7 +437,7 @@ int		main(int argc, char **argv)
 
 	if (argc != 2)
 		return (0);
-	defaultmap(&map);
+	defaultmap(&map, 'a');
 	dims(argv[1], &(map.width), &(map.height));
 	getmatrix(argv[1], &map);
 	map.mlx = mlx_init();
