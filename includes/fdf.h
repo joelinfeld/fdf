@@ -6,12 +6,16 @@
 /*   By: jinfeld <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/25 17:32:59 by jinfeld           #+#    #+#             */
-/*   Updated: 2017/10/31 13:11:14 by jinfeld          ###   ########.fr       */
+/*   Updated: 2017/11/01 15:28:26 by jinfeld          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #ifndef FDF_H
 # define FDF_H
 # include <math.h>
+# include "mlx.h"
+# include "libft.h"
+
 typedef struct		s_img
 {
 	void	*ptr;
@@ -31,7 +35,7 @@ typedef struct		s_point
 	int				x;
 	int				y;
 	int				z;
-}					t_p;	
+}					t_p;
 typedef struct		s_node
 {
 	t_p				p[2];
@@ -55,11 +59,22 @@ typedef struct		s_map
 	int				maxz;
 	int				minz;
 	int				trans[2];
-	int			 	scale;
+	int				scale;
 	int				last;
+	int				ww;
+	int				wh;
 	float			rot[3];
 	t_clr			clr0;
 	t_clr			clr1;
 }					t_map;
+void				defaultmap(t_map *map, char c);
+int					keyz(int key, t_map *map);
+void				getmatrix(char *str, t_map *map);
+void				dims(char *filename, int *width, int *height);
+void				error(char *str);
+int					drawgrid(t_map *map);
+t_clr				colorbound(t_p p, t_map *map);
+int					colorgrade(t_node node, int i);
+void				rotate(t_p *p, t_map *map);
 
 #endif

@@ -5,7 +5,12 @@ CC=gcc
 CFLAGS=-Wall -Wextra -Werror
 
 #fdf sources
-SRCS = srcs/realmain.c
+SRCS = srcs/realmain.c 		\
+	   srcs/keyfunctions.c 	\
+	   srcs/mapset.c		\
+	   srcs/drawfunctions.c \
+	   srcs/colors.c		\
+	   srcs/rotate.c
 OBJS=$(SRCS:%.c=%.o)
 
 
