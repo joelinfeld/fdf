@@ -6,7 +6,7 @@
 /*   By: jinfeld <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/25 17:32:59 by jinfeld           #+#    #+#             */
-/*   Updated: 2017/11/01 15:28:26 by jinfeld          ###   ########.fr       */
+/*   Updated: 2017/11/06 15:54:08 by jinfeld          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,5 +76,9 @@ int					drawgrid(t_map *map);
 t_clr				colorbound(t_p p, t_map *map);
 int					colorgrade(t_node node, int i);
 void				rotate(t_p *p, t_map *map);
+void				keyreset(int key, t_map *map);
+t_p					setpoint(int y, int x, int z, int scale);
+t_node				setnode(t_p p1, t_p p2, t_map *map);
+int					stepcount(t_node node);
 
 #endif

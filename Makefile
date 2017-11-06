@@ -10,7 +10,11 @@ SRCS = srcs/realmain.c 		\
 	   srcs/mapset.c		\
 	   srcs/drawfunctions.c \
 	   srcs/colors.c		\
-	   srcs/rotate.c
+	   srcs/rotate.c		\
+	   srcs/defaultmap.c	\
+	   srcs/keyreset.c		\
+	   srcs/setpoint.c
+
 OBJS=$(SRCS:%.c=%.o)
 
 
